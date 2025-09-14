@@ -22,6 +22,19 @@ services:
     environment:
       - MQTT_BROKER_HOST=mqtt-broker
 
+  mqtt-listener:
+    build: .
+    command: python mysite/manage.py mqtt_listener
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - mqtt-broker
+    env_file:
+      - ./.env
+    environment:
+      - MQTT_BROKER_HOST=mqtt-broker
+
   mqtt-broker:
     image: eclipse-mosquitto
     ports:
