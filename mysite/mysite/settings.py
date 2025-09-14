@@ -25,18 +25,25 @@ SECRET_KEY = 'django-insecure-^=6-_k)oh!n9-fpcd1qd0rf(!8y2!!8cc*so1if(!*ydv@*_dc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['8000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev', '.cloudworkstations.dev', 'localhost', '127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS = ['https://8000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev']
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'fleet',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +82,12 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'your_db_name',
+        'USER': 'your_db_user',
+        'PASSWORD': 'your_db_password',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -121,3 +132,21 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+JAZZMIN_SETTINGS = {
+    "site_title": "ZongoRide Fleet Admin",
+    "site_header": "ZongoRide",
+    "site_brand": "ZongoRide",
+    "welcome_sign": "Welcome to ZongoRide Fleet Management",
+    "copyright": "ZongoRide Ltd",
+    "topmenu_links": [
+        {"name": "Home", "url": "/admin"},
+        {"name": "Fleet", "app": "fleet"},
+    ],
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
