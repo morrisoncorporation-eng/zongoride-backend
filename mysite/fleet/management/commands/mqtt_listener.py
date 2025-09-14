@@ -1,4 +1,4 @@
-
+import os
 import json
 from django.core.management.base import BaseCommand
 from fleet.models import Scooter
@@ -52,8 +52,7 @@ class Command(BaseCommand):
         client.on_connect = self.on_connect
         client.on_message = self.on_message
 
-        # TODO: Replace with your MQTT broker's host and port
-        broker_host = "mqtt.eclipseprojects.io"
+        broker_host = os.environ.get('MQTT_BROKER_HOST', 'mqtt.eclipseprojects.io')
         broker_port = 1883
 
         try:
