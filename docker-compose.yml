@@ -1,7 +1,6 @@
-version: '3.8'
-
 services:
   db:
+    platform: linux/amd64
     image: postgis/postgis
     volumes:
       - postgis_data:/var/lib/postgresql/data/
