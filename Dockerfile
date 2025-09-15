@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /code
 
 # Install system dependencies for psycopg2 and GDAL
-RUN apt-get update && apt-get install -y binutils libproj-dev gdal-bin python3-gdal python3-psycopg2
+RUN apt-get update && apt-get install -y binutils libproj-dev gdal-bin libgdal-dev libgeos-dev python3-psycopg2
 
 # Copy the requirements file and install dependencies
 COPY mysite/requirements.txt /code/

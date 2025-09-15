@@ -77,8 +77,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
-GDAL_LIBRARY_PATH = '/nix/store/5fb3v1fbpb7d95bzykpw2hks41mpwvj7-gdal-3.8.5/lib/libgdal.so'
-GEOS_LIBRARY_PATH = '/nix/store/1sm6j0s8rp58i53ynpvmrif6aar85vpm-geos-3.12.1/lib/libgeos_c.so'
+GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH', '/nix/store/5fb3v1fbpb7d95bzykpw2hks41mpwvj7-gdal-3.8.5/lib/libgdal.so')
+GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH', '/nix/store/1sm6j0s8rp58i53ynpvmrif6aar85vpm-geos-3.12.1/lib/libgeos_c.so')
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

@@ -20,6 +20,8 @@ services:
       - ./.env
     environment:
       - MQTT_BROKER_HOST=mqtt-broker
+      - GDAL_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgdal.so
+      - GEOS_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgeos_c.so
 
   mqtt-listener:
     build: .
@@ -33,6 +35,8 @@ services:
       - ./.env
     environment:
       - MQTT_BROKER_HOST=mqtt-broker
+      - GDAL_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgdal.so
+      - GEOS_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgeos_c.so
 
   mqtt-broker:
     image: eclipse-mosquitto
