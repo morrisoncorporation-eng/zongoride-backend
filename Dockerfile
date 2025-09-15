@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM osgeo/gdal:python3.11-ubuntu-full-latest
+FROM osgeo/gdal:ubuntu-full-latest
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
