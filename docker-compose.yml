@@ -9,6 +9,7 @@ services:
 
   web:
     build: .
+    platform: linux/amd64
     command: python mysite/manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
@@ -23,6 +24,7 @@ services:
 
   mqtt-listener:
     build: .
+    platform: linux/amd64
     command: python mysite/manage.py mqtt_listener
     volumes:
       - .:/code
