@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM osgeo/gdal:ubuntu-full-latest
+FROM ghcr.io/osgeo/gdal:alpine-small-3.11.4
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -8,8 +8,8 @@ ENV PYTHONUNBUFFERED 1
 # Set the working directory in the container
 WORKDIR /code
 
-# Install system dependencies for psycopg2
-RUN apt-get update && apt-get install -y python3-psycopg2
+# Install build dependencies for Python packages
+RUN apk add --no-cache postgresql-dev build-base
 
 # Copy the requirements file and install dependencies
 COPY mysite/requirements.txt /code/
