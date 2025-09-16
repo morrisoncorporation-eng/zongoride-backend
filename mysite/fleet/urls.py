@@ -9,9 +9,13 @@ from .views import (
     BikeRetrieveUpdateDestroyView,
     RideHistoryListView,
     NearbyScootersView,
+    ScooterGeoJSONListView,
+    map_view,
 )
 
 urlpatterns = [
+    path('scooters/geojson/', ScooterGeoJSONListView.as_view(), name='scooter-geojson'),
+    path('map/', map_view, name='map-view'),
     path('scooters/', ScooterListCreateView.as_view(), name='scooter-list-create'),
     path('scooters/nearby/', NearbyScootersView.as_view(), name='scooter-nearby'),
     path('scooters/<int:pk>/', ScooterRetrieveUpdateDestroyView.as_view(), name='scooter-retrieve-update-destroy'),

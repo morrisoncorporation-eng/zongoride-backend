@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from drf_spectacular.utils import extend_schema, OpenApiExample
+from django.shortcuts import render
 
 @extend_schema(
     description="Operations related to the management of the scooter fleet."
@@ -115,3 +116,42 @@ class NearbyScootersView(generics.ListAPIView):
 
         user_location = Point(float(longitude), float(latitude), srid=4326)
         return Scooter.objects.filter(status='available').annotate(distance=Distance('location', user_location)).order_by('distance')
+
+class ScooterGeoJSONListView(APIView):
+    """
+    API endpoint that provides a GeoJSON representation of all scooters.
+    This is suitable for use with mapping libraries like Leaflet.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        scooters = Scooter.objects.all()
+        features = []
+        for scooter in scooters:
+            if scooter.location:
+                feature = {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [scooter.location.x, scooter.location.y]
+                    },
+                    "properties": {
+                        "id": scooter.id,
+                        "status": scooter.status,
+                        "battery_level": scooter.battery_level,
+                    }
+                }
+                features.append(feature)
+        
+        feature_collection = {
+            "type": "FeatureCollection",
+            "features": features
+        }
+        
+        return Response(feature_collection)
+
+def map_view(request):
+    """
+    This view renders the live map page for the scooter fleet.
+    """
+    return render(request, 'fleet/map.html')

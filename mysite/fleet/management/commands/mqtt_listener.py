@@ -27,9 +27,11 @@ class Command(BaseCommand):
             payload = json.loads(msg.payload.decode('utf-8'))
 
             try:
-                scooter = Scooter.objects.get(device_id=scooter_id)
+                # Corrected to use 'id' which is the actual primary key for the Scooter model
+                scooter = Scooter.objects.get(id=scooter_id)
             except Scooter.DoesNotExist:
-                self.stdout.write(self.style.WARNING(f"Scooter with device_id '{scooter_id}' not found."))
+                # Corrected the warning message to reflect the change
+                self.stdout.write(self.style.WARNING(f"Scooter with id '{scooter_id}' not found."))
                 return
 
             if data_type == 'location':
@@ -53,7 +55,7 @@ class Command(BaseCommand):
         client.on_connect = self.on_connect
         client.on_message = self.on_message
 
-        broker_host = os.environ.get('MQTT_BROKER_HOST', 'mqtt.eclipseprojects.io')
+        broker_host = os.environ.get('MQTT_BROKER_HOST', 'mqtt-broker')
         broker_port = 1883
 
         connected = False
