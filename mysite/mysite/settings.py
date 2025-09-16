@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['8000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev', '.cloudworkstations.dev', 'localhost', '127.0.0.1']
 
-CSRF_TRUSTED_ORIGINS = ['https://8000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev']
+CSRF_TRUSTED_ORIGINS = ['https://8000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev', 'https://9000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev']
 
 # Application definition
 
