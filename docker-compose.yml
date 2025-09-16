@@ -10,7 +10,7 @@ services:
   web:
     build: .
     platform: linux/amd64
-    command: python mysite/manage.py runserver 0.0.0.0:8000
+    command: /opt/venv/bin/python mysite/manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
     ports:
@@ -25,7 +25,7 @@ services:
   mqtt-listener:
     build: .
     platform: linux/amd64
-    command: python mysite/manage.py mqtt_listener
+    command: /opt/venv/bin/python mysite/manage.py mqtt_listener
     volumes:
       - .:/code
     depends_on:

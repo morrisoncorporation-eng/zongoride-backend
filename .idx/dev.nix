@@ -7,6 +7,7 @@
   packages = [
     pkgs.python3
     pkgs.gdal  # Added GDAL for GeoDjango
+    pkgs.docker
   ];
   # Sets environment variables in the workspace
   env = {};
