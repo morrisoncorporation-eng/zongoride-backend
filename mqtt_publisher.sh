@@ -17,15 +17,15 @@ do
   # Construct the JSON payload
   PAYLOAD1="{\"latitude\": $LAT1, \"longitude\": $LON1}"
   
-  # Publish to the location topic for scooter 1
-  mosquitto_pub -h mosquitto -p 1883 -t "scooters/1/location" -m "$PAYLOAD1"
+  # Publish to the location topic for scooter 1, using the correct hostname 'mqtt-broker'
+  mosquitto_pub -h mqtt-broker -p 1883 -t "scooters/1/location" -m "$PAYLOAD1"
   echo "Published for Scooter 1: $PAYLOAD1"
 
   # --- Scooter 2 ---
   LAT2=$(echo "40.7580 + ( $RANDOM % 100 - 50 ) / 10000.0" | bc)
   LON2=$(echo "-73.9855 + ( $RANDOM % 100 - 50 ) / 10000.0" | bc)
   PAYLOAD2="{\"latitude\": $LAT2, \"longitude\": $LON2}"
-  mosquitto_pub -h mosquitto -p 1883 -t "scooters/2/location" -m "$PAYLOAD2"
+  mosquitto_pub -h mqtt-broker -p 1883 -t "scooters/2/location" -m "$PAYLOAD2"
   echo "Published for Scooter 2: $PAYLOAD2"
 
   # Wait for 10 seconds before the next loop
