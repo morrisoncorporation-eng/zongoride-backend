@@ -4,163 +4,108 @@ This is the back-end API for the ZongoRide fleet management system. It is built 
 
 ## Features
 
-- **Scooter Management:** Create, retrieve, update, and delete scooters.
-- **Bike Management:** Create, retrieve, update, and delete bikes.
+- **Geospatial Data:** Utilizes PostGIS to store and query location data for all fleet vehicles.
+- **Scooter & Bike Management:** Full CRUD (Create, Retrieve, Update, Delete) operations for scooters and bikes.
 - **Remote Lock/Unlock:** Lock and unlock scooters remotely.
 - **Real-time IoT Updates:** An MQTT listener is included to receive real-time location and status updates from IoT devices on the scooters.
 - **Modern Admin UI:** A customized admin dashboard using `django-jazzmin` for a better user experience.
 
 ## Architecture
 
-The ZongoRide backend is designed with a modular architecture that separates the core API from the real-time IoT data processing.
+The ZongoRide backend is designed with a modular, containerized architecture that separates the core API from real-time data processing and other services.
 
--   **Django REST API:** The heart of the system, built with Django and the Django REST Framework. It exposes a set of RESTful endpoints for the mobile app to consume. All business logic for managing scooters and bikes is handled here.
+```mermaid
+graph TD
+    subgraph "User Interaction"
+        A[Admin/Operator] --> B{Django Admin UI};
+        C[Rider App] --> D{REST API};
+    end
 
--   **IoT Devices (Scooters):** Each scooter is equipped with an IoT device that sends data (location, status, battery level) to an MQTT broker.
+    subgraph "ZongoRide Backend (Docker Compose)"
+        B --> E[Web App (Django/Gunicorn)];
+        D --> E;
+        E -- CRUD Ops --> F[(PostgreSQL/PostGIS DB)];
+        G[IoT Devices] -- MQTT pub --> H{MQTT Broker};
+        I[MQTT Listener] -- MQTT sub --> H;
+        I -- Updates --> E;
+    end
 
--   **MQTT Broker:** A central message broker that receives data from all IoT devices. This decouples the IoT devices from the backend API.
-
--   **MQTT Listener:** A Django management command (`mqtt_listener`) that runs as a separate process. It connects to the MQTT broker, subscribes to the relevant topics, and updates the database in real-time as new data arrives from the scooters.
-
--   **Database:** A PostgreSQL or SQLite database that stores all the data for the scooters, bikes, user accounts, and other system information.
-
--   **Mobile App:** The front-end mobile application (iOS/Android) that communicates with the Django REST API to allow users to find, unlock, and manage scooters.
-
-Here is a simplified diagram of the data flow:
-
-```
-+----------------+      +------------------+      +-----------------+
-|                |      |                  |      |                 |
-|  Mobile App    +----->|  Django REST API +----->|    Database     |
-|                |      |                  |      |                 |
-+----------------+      +------------------+      +-------^---------+
-                                                          |
-                                                          | (Updates)
-                                                          |
-+----------------+      +------------------+      +-------+---------+
-|                |      |                  |      |                 |
-|  IoT Devices   +----->|   MQTT Broker    +----->|  MQTT Listener  |
-| (Scooters)     |      |                  |      | (Django Command)|
-|                |      |                  |      |                 |
-+----------------+      +------------------+      +-----------------+
+    style F fill:#d9e6f3,stroke:#333,stroke-width:2px
+    style H fill:#d9f3e6,stroke:#333,stroke-width:2px
 ```
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes using Docker.
 
 ### Prerequisites
 
-- Python 3
-- Pip
-- Virtualenv
+- **Docker:** [Install Docker](https://docs.docker.com/get-docker/)
+- **Docker Compose:** [Install Docker Compose](https://docs.docker.com/compose/install/) (usually included with Docker Desktop)
 
 ### Installation
 
 1.  **Clone the repository:**
 
     ```bash
-    git clone <repository-url>
-    cd <repository-directory>
+    git clone https://github.com/your-username/zongoride-backend.git
+    cd zongoride-backend
     ```
 
-2.  **Create and activate a virtual environment:**
+2.  **Create an Environment File:**
+
+    The application uses environment variables for configuration. Create a file named `.env` in the project root. Copy the contents of `.env.example` into it. This file is used by `docker-compose` to configure the database connection.
 
     ```bash
-    python -m venv .venv
-    source .venv/bin/activate
+    cp .env.example .env
     ```
 
-3.  **Install the dependencies:**
+3.  **Build and Start the Containers:**
+
+    This command will build the Docker image for the web application, start all services (web app, database, MQTT broker), and run them in the background.
 
     ```bash
-    pip install -r mysite/requirements.txt
+    docker-compose up --build -d
     ```
 
-4.  **Run the database migrations:**
+4.  **Apply Database Migrations:**
+
+    Once the containers are running, you need to apply the database migrations to set up the database schema.
 
     ```bash
-    python mysite/manage.py migrate
+    docker-compose exec web python manage.py migrate
     ```
 
-5.  **Create a superuser to access the admin dashboard:**
+5.  **Create a Superuser:**
+
+    To access the Django admin panel, you need to create an administrator account.
 
     ```bash
-    python mysite/manage.py createsuperuser
+    docker-compose exec web python manage.py createsuperuser
     ```
+    Follow the prompts to create your username, email, and password.
 
-6.  **Run the development server:**
+6.  **Access the Application:**
 
-    ```bash
-    ./devserver.sh
-    ```
+    You can now access the application:
+    - **Admin Panel:** [http://localhost:8000/admin/](http://localhost:8000/admin/)
+    - **API Root:** [http://localhost:8000/api/](http://localhost:8000/api/)
+    - **API Documentation (Swagger UI):** [http://localhost:8000/api/swagger/](http://localhost:8000/api/swagger/)
+    - **API Documentation (ReDoc):** [http://localhost:8000/api/redoc/](http://localhost:8000/api/redoc/)
 
-The API will be available at `http://127.0.0.1:8000/`.
 
-## API Authentication
+## API Usage
 
-The API uses token-based authentication with `djangorestframework-simplejwt`. To access the protected endpoints, you must include a valid JSON Web Token (JWT) in the `Authorization` header of your requests.
+The API is built using Django REST Framework. You can interact with it using tools like `curl` or Postman. Authentication is handled via JWT.
 
-### 1. Get an Authentication Token
+- **`/api/token/`**: Obtain a JWT by POSTing username and password.
+- **`/api/token/refresh/`**: Refresh an expired JWT.
+- **`/api/fleet/scooters/`**: List or create scooters.
 
-To get a token, make a `POST` request to the `/api/token/` endpoint with your username and password.
+## Running Tests
+
+To run the automated test suite, use the following command:
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d '{"username": "your_username", "password": "your_password"}' http://127.0.0.1:8000/api/token/
+docker-compose exec web python manage.py test
 ```
-
-The response will contain an access and refresh token:
-
-```json
-{
-    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-### 2. Access Protected Endpoints
-
-To access a protected endpoint, include the `access` token in the `Authorization` header as a "Bearer" token.
-
-```bash
-curl -H "Authorization: Bearer <your_access_token>" http://127.0.0.1:8000/api/scooters/
-```
-
-## API Endpoints
-
-### Scooters
-
-- `GET /scooters/`: Retrieve a list of all scooters.
-- `POST /scooters/`: Create a new scooter.
-- `GET /scooters/<id>/`: Retrieve a specific scooter.
-- `PUT /scooters/<id>/`: Update a specific scooter.
-- `DELETE /scooters/<id>/`: Delete a specific scooter.
-- `POST /scooters/<id>/lock/`: Lock a specific scooter.
-- `POST /scooters/<id>/unlock/`: Unlock a specific scooter.
-
-### Bikes
-
-- `GET /bikes/`: Retrieve a list of all bikes.
-- `POST /bikes/`: Create a new bike.
-- `GET /bikes/<id>/`: Retrieve a specific bike.
-- `PUT /bikes/<id>/`: Update a specific bike.
-- `DELETE /bikes/<id>/`: Delete a specific bike.
-
-## MQTT Listener
-
-To receive real-time updates from IoT devices, run the MQTT listener:
-
-```bash
-python mysite/manage.py mqtt_listener
-```
-
-This command starts a client that subscribes to the following topics:
-
-- `scooters/+/location`: For scooter location updates.
-- `scooters/+/status`: For scooter status and battery level updates.
-
-**Note:** You will need to configure the MQTT broker address in `mysite/fleet/management/commands/mqtt_listener.py`.
-
-## Admin Dashboard
-
-Access the admin dashboard at `/admin/`. The UI is customized with `django-jazzmin` for a modern look and feel.

@@ -17,7 +17,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy the requirements file and install dependencies
 COPY mysite/requirements.txt /code/
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
 COPY . /code/
