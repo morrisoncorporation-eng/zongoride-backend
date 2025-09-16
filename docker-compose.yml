@@ -50,13 +50,22 @@ services:
       - GEOS_LIBRARY_PATH=/usr/lib/libgeos_c.so
 
   mqtt-broker:
-    image: eclipse-mosquitto
+    image: eclipse-mosquitto:2.0.15
+    platform: linux/amd64
     ports:
       - "1883:1883"
       - "9001:9001"
     volumes:
       - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
-    command: mosquitto -c /mosquitto/config/mosquitto.conf
+
+  publisher:
+    image: eclipse-mosquitto:2.0.15
+    platform: linux/amd64
+    volumes:
+      - ./mqtt_publisher.sh:/mqtt_publisher.sh
+    command: ["sh", "/mqtt_publisher.sh"]
+    depends_on:
+      - mqtt-broker
 
 volumes:
   postgis_data:
