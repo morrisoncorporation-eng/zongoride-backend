@@ -1,31 +1,26 @@
 # Use an official Python runtime as a parent image
-FROM python:3.11-slim
+FROM ghcr.io/osgeo/gdal:ubuntu-full-3.11.4
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Install system dependencies for GeoDjango
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    binutils \
-    libproj-dev \
-    gdal-bin \
-    libgdal-dev && \
-    rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /code
+
+# Install build dependencies for Python packages
+RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev build-essential python3-pip python3-full && rm -rf /var/lib/apt/lists/*
+
+# Create and activate virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy the requirements file and install dependencies
-COPY mysite/requirements.txt /app/
+COPY mysite/requirements.txt /code/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
-COPY . /app/
+COPY . /code/
 
-# Expose the port the app runs on
+# Expose port for the web application
 EXPOSE 8000
-
-# Define the command to run the application
-CMD ["python", "mysite/manage.py", "runserver", "0.0.0.0:8000"]

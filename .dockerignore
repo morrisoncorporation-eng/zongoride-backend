@@ -1,0 +1,23 @@
+# Git
+.git
+.gitignore
+
+# Nix environment
+.idx/
+.venv/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local database
+*.sqlite3
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Env file
+.env

@@ -8,11 +8,49 @@ from .serializers import ScooterSerializer, BikeSerializer, RideHistorySerialize
 from django.utils import timezone
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
+@extend_schema(
+    description="Operations related to the management of the scooter fleet."
+)
 class ScooterListCreateView(generics.ListCreateAPIView):
+    """
+    API endpoint that allows for the listing and creation of scooters.
+    """
     queryset = Scooter.objects.all()
     serializer_class = ScooterSerializer
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="List all scooters",
+        description="Retrieve a list of all scooters in the fleet, including their real-time status and location.",
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Add a new scooter to the fleet",
+        description="Create a new scooter record. This is typically used when a new scooter is commissioned into the fleet.",
+        examples=[
+            OpenApiExample(
+                'Example Request',
+                summary='A sample request to add a new scooter',
+                description='Provide the scooter model, current status, and its initial GPS location.',
+                value={
+                    "model": "Zongo X1",
+                    "status": "available",
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [-73.985, 40.748]
+                    }
+                },
+                request_only=True
+            )
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
 
 class ScooterRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Scooter.objects.all()

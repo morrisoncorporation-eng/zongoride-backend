@@ -1,5 +1,6 @@
-
+import os
 import json
+import time
 from django.core.management.base import BaseCommand
 from fleet.models import Scooter
 import paho.mqtt.client as mqtt
@@ -52,13 +53,17 @@ class Command(BaseCommand):
         client.on_connect = self.on_connect
         client.on_message = self.on_message
 
-        # TODO: Replace with your MQTT broker's host and port
-        broker_host = "mqtt.eclipseprojects.io"
+        broker_host = os.environ.get('MQTT_BROKER_HOST', 'mqtt.eclipseprojects.io')
         broker_port = 1883
 
-        try:
-            client.connect(broker_host, broker_port, 60)
-            self.stdout.write(self.style.SUCCESS(f"Connecting to MQTT broker at {broker_host}:{broker_port}"))
-            client.loop_forever()
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f"Could not connect to MQTT broker: {e}"))
+        connected = False
+        while not connected:
+            try:
+                client.connect(broker_host, broker_port, 60)
+                connected = True
+                self.stdout.write(self.style.SUCCESS(f"Connecting to MQTT broker at {broker_host}:{broker_port}"))
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Could not connect to MQTT broker: {e}. Retrying in 5 seconds..."))
+                time.sleep(5)
+        
+        client.loop_forever()

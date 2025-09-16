@@ -1,0 +1,53 @@
+services:
+  db:
+    platform: linux/amd64
+    image: postgis/postgis
+    volumes:
+      - postgis_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+  web:
+    build: .
+    platform: linux/amd64
+    command: /opt/venv/bin/python mysite/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+    environment:
+      - MQTT_BROKER_HOST=mqtt-broker
+      - GDAL_LIBRARY_PATH=/usr/lib/libgdal.so
+      - GEOS_LIBRARY_PATH=/usr/lib/libgeos_c.so
+
+  mqtt-listener:
+    build: .
+    platform: linux/amd64
+    command: /opt/venv/bin/python mysite/manage.py mqtt_listener
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - mqtt-broker
+    env_file:
+      - ./.env
+    environment:
+      - MQTT_BROKER_HOST=mqtt-broker
+      - GDAL_LIBRARY_PATH=/usr/lib/libgdal.so
+      - GEOS_LIBRARY_PATH=/usr/lib/libgeos_c.so
+
+  mqtt-broker:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    command: mosquitto -c /mosquitto/config/mosquitto.conf
+
+volumes:
+  postgis_data:

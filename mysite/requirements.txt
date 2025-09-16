@@ -10,3 +10,5 @@ PyJWT==2.10.1
 sqlparse==0.4.4
 typing_extensions==4.9.0
 psycopg2-binary
+drf-spectacular
+djangorestframework-gis

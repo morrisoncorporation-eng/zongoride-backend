@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['8000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev', '.cloudworkstations.dev', 'localhost', '127.0.0.1']
 
-CSRF_TRUSTED_ORIGINS = ['https://8000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev']
+CSRF_TRUSTED_ORIGINS = ['https://8000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev', 'https://9000-firebase-zongoridebackend-1757577652061.cluster-2ywkqesibzdhuvybgxpusl4nj2.cloudworkstations.dev']
 
 # Application definition
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_spectacular',
     'fleet',
     'accounts',
 ]
@@ -76,20 +78,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
+GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH', '/nix/store/5fb3v1fbpb7d95bzykpw2hks41mpwvj7-gdal-3.8.5/lib/libgdal.so')
+GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH', '/nix/store/1sm6j0s8rp58i53ynpvmrif6aar85vpm-geos-3.12.1/lib/libgeos_c.so')
+SPATIALITE_LIBRARY_PATH = '/nix/store/c4mzmnwdki64kirxs0xv8lnyy4b0r58y-libspatialite-5.1.0/lib/mod_spatialite.so'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'your_db_name',
-        'USER': 'your_db_user',
-        'PASSWORD': 'your_db_password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+if os.environ.get('POSTGRES_DB'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': os.environ.get('POSTGRES_DB'),
+            'USER': os.environ.get('POSTGRES_USER'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+            'HOST': 'db',
+            'PORT': '5432',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.spatialite',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
 
 
 # Password validation
@@ -148,5 +162,13 @@ JAZZMIN_SETTINGS = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'ZongoRide Fleet Management API',
+    'DESCRIPTION': 'A comprehensive API for managing and tracking the ZongoRide fleet of scooters and bikes.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,  # Optional: hides the schema download button
 }
